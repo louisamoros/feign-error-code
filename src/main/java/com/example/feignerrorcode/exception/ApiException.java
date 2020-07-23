@@ -6,11 +6,11 @@ public class ApiException extends Exception {
         super();
     }
 
-    protected ApiException(String message) {
+    public ApiException(String message) {
         super(message);
     }
 
-    protected ApiException(String message, Throwable cause) {
+    public ApiException(String message, Throwable cause) {
         super(message, cause);
     }
 

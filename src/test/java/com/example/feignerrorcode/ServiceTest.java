@@ -1,8 +1,10 @@
 package com.example.feignerrorcode;
 
 import com.example.feignerrorcode.dto.UserDTO;
+import com.example.feignerrorcode.exception.ApiException;
 import com.example.feignerrorcode.feign.CustomerService;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +41,7 @@ class ServiceTest {
     }
 
     @Test
-    public void should_get_customer() {
+    public void should_get_customer() throws ApiException {
         // given
         final var brand = "brand";
         final var sessionToken = "jwt-session-token";
@@ -102,7 +104,10 @@ class ServiceTest {
                 .respond(response);
 
         // when
-        customerService.get(brand, null);
+        Assertions.assertThrows(
+                ApiException.class,
+                () -> customerService.get(brand, null)
+        );
 
         // then
         // passing null retrieve all recorded requests

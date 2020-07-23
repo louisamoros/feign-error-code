@@ -5,11 +5,14 @@ import com.example.feignerrorcode.exception.ApiException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Response;
 import feign.codec.ErrorDecoder;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Objects;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 
 public class FeignClientErrorHandler implements ErrorDecoder {
 
@@ -19,24 +22,20 @@ public class FeignClientErrorHandler implements ErrorDecoder {
     @Override
     public Exception decode(final String methodKey,
                             final Response response) {
-        LOGGER.error("Feign client error handler. Method: {}, Response: {}", methodKey, response);
-        if (Objects.isNull(response)) {
-            return new IllegalArgumentException("API response is null.");
-        }
-        Response.Body body = response.body();
-        if (Objects.isNull(body)) {
-            return new IllegalArgumentException(
-                    String.format("API body is null, could not handle it. Http status: %s", response.status())
-            );
-        }
         try {
-            ApiErrorDTO apiErrorDTO = MAPPER.readValue(body.asReader(), ApiErrorDTO.class);
+            String bodyString = convertInputStreamToString(response.body().asInputStream());
+            ApiErrorDTO apiErrorDTO = MAPPER.readValue(bodyString, ApiErrorDTO.class);
             LOGGER.info("API response is error. Commerce API error code = {}", apiErrorDTO.getCode());
-            return new ApiException();
+            return new ApiException(apiErrorDTO.getMessage());
         } catch (IOException e) {
             return new IllegalArgumentException("Could not extract error payload.", e);
         }
     }
 
+    private static String convertInputStreamToString(InputStream inputStream) throws IOException {
+        StringWriter writer = new StringWriter();
+        IOUtils.copy(inputStream, writer, String.valueOf(StandardCharsets.UTF_8));
+        return writer.toString();
+    }
 
 }
