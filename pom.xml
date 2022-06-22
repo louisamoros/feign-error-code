@@ -20,7 +20,7 @@
         <!--project-->
         <feign-core.version>10.4.0</feign-core.version>
         <feign-jackson.version>8.18.0</feign-jackson.version>
-        <openfeign-cloud.version>2.2.3.RELEASE</openfeign-cloud.version>
+        <openfeign-cloud.version>3.0.6</openfeign-cloud.version>
         <jackson-databind.version>2.11.0</jackson-databind.version>
 
         <!--test-->
